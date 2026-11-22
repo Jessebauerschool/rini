@@ -1,5 +1,10 @@
 ## Quick start
 
+RiNi can be installed in two ways:
+
+1. **Manual CLI:** use the Arch PKGBUILD in `packaging/arch/`, the Debian package metadata in `packaging/debian/`, `nix build .#rini` on NixOS, or a release source build.
+2. **TUI installer:** run `./scripts/install-rini.sh` for automatic distro detection, or `./scripts/install-rini.sh --menu` to choose a method.
+
 Use these commands to install niri with [Dux Modular Shell](https://github.com/duxlabs-dev/dux-shell) for a fairly out-of-the-box experience.
 
 Fedora:
@@ -208,7 +213,7 @@ For example, you can replace systemd integration with dinit integration using `c
 
 ### NixOS/Nix
 
-We have a community-maintained flake which provides a devshell with required dependencies. Use `nix build` to build niri, and then run `./results/bin/niri`.
+The repository flake provides RiNi and its required dependencies. Use `nix build .#rini`, then run `./result/bin/rini`.
 
 If you're not on NixOS, you may need [NixGL](https://github.com/nix-community/nixGL) to run the resulting binary:
 

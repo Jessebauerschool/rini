@@ -1,0 +1,29 @@
+pkgname=rini
+pkgver=26.4.0
+pkgrel=1
+pkgdesc='A minimal, scrollable-tiling Wayland compositor'
+arch=('x86_64')
+url='https://github.com/Jessebauerschool/rini'
+license=('GPL3')
+depends=('libinput' 'libxkbcommon' 'mesa' 'pipewire' 'pango')
+makedepends=('cargo' 'git' 'pkgconf')
+source=("rini::git+https://github.com/Jessebauerschool/rini.git")
+sha256sums=('SKIP')
+
+build() {
+    cd rini
+    cargo build --release --bin rini
+}
+
+package() {
+    cd rini
+    install -Dm755 target/release/rini "$pkgdir/usr/bin/rini"
+    install -Dm755 resources/rini-session "$pkgdir/usr/bin/rini-session"
+    install -Dm644 resources/rini.desktop "$pkgdir/usr/share/wayland-sessions/rini.desktop"
+    install -Dm644 resources/rini.png "$pkgdir/usr/share/pixmaps/rini.png"
+    install -Dm644 resources/rini-portals.conf "$pkgdir/usr/share/xdg-desktop-portal/rini-portals.conf"
+    install -Dm755 resources/rini.service "$pkgdir/usr/lib/systemd/user/rini.service"
+    install -Dm755 resources/rini-shutdown.target "$pkgdir/usr/lib/systemd/user/rini-shutdown.target"
+    install -Dm755 resources/dinit/rini "$pkgdir/usr/lib/dinit.d/user/rini"
+    install -Dm755 resources/dinit/rini.target "$pkgdir/usr/lib/dinit.d/user/rini.target"
+}

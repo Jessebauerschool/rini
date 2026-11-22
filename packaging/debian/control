@@ -1,0 +1,14 @@
+Source: rini
+Section: x11
+Priority: optional
+Maintainer: RiNi Maintainers <noreply@example.invalid>
+Build-Depends: debhelper-compat (= 13), cargo, rustc, pkg-config, libudev-dev, libgbm-dev, libegl1-mesa-dev, libwayland-dev, libinput-dev, libxkbcommon-dev
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
+Homepage: https://github.com/Jessebauerschool/rini
+
+Package: rini
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}, pipewire, libxkbcommon0
+Description: minimal, scrollable-tiling Wayland compositor
+ RiNi is a minimal fork of niri with configurable performance profiles.

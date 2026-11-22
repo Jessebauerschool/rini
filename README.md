@@ -12,6 +12,63 @@
 
 <img width="1280" height="720" alt="niri with a few windows open" src="https://github.com/user-attachments/assets/dea5909e-1859-4aaa-9d88-d37f9663e00b" />
 
+## Install RiNi
+
+### 1. Manual CLI installation
+
+**Arch Linux / Arch derivatives**
+
+Use the included PKGBUILD:
+
+```sh
+cd packaging/arch
+makepkg -si
+```
+
+**Debian / Ubuntu**
+
+Install the build dependencies, then build and install the local Debian package:
+
+```sh
+sudo apt update
+sudo apt install build-essential debhelper cargo rustc pkg-config \
+  libudev-dev libgbm-dev libegl1-mesa-dev libwayland-dev \
+  libinput-dev libxkbcommon-dev
+dpkg-buildpackage -b -uc -us
+sudo dpkg -i ../rini_*.deb
+```
+
+**NixOS**
+
+Build from this flake:
+
+```sh
+nix build .#rini
+./result/bin/rini --help
+```
+
+For source installation on another Linux distribution:
+
+```sh
+cargo build --release --bin rini
+sudo install -Dm755 target/release/rini /usr/local/bin/rini
+sudo install -Dm755 resources/rini-session /usr/local/bin/rini-session
+```
+
+### 2. TUI installer
+
+The installer detects Arch Linux, Debian/Ubuntu, NixOS, or falls back to a source build. Run it from the repository:
+
+```sh
+./scripts/install-rini.sh
+```
+
+To open the interactive method menu explicitly:
+
+```sh
+./scripts/install-rini.sh --menu
+```
+
 ## About
 
 Windows are arranged in columns on an infinite strip going to the right.

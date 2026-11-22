@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	cargo build --release --bin rini
+
+override_dh_auto_install:
+	install -Dm755 target/release/rini debian/rini/usr/bin/rini
+	install -Dm755 resources/rini-session debian/rini/usr/bin/rini-session
+	install -Dm755 resources/rini.desktop debian/rini/usr/share/wayland-sessions/rini.desktop
+	install -Dm755 resources/rini.png debian/rini/usr/share/pixmaps/rini.png
+	install -Dm755 resources/rini-portals.conf debian/rini/usr/share/xdg-desktop-portal/rini-portals.conf
+	install -Dm755 resources/rini.service debian/rini/usr/lib/systemd/user/rini.service
+	install -Dm755 resources/rini-shutdown.target debian/rini/usr/lib/systemd/user/rini-shutdown.target
+	install -Dm755 resources/dinit/rini debian/rini/usr/lib/dinit.d/user/rini
+	install -Dm755 resources/dinit/rini.target debian/rini/usr/lib/dinit.d/user/rini.target

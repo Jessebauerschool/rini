@@ -10,6 +10,47 @@ use crate::utils::spawning::store_and_increase_nofile_rlimit;
 use crate::utils::with_toplevel_role;
 
 #[test]
+#[ignore = "manual memory benchmark; run with --release"]
+fn memory_workload_20_windows() {
+    let mut f = Fixture::new();
+    f.add_output(1, (1920, 1080));
+
+    let id = f.add_client();
+    let window_count = std::env::var("RINI_MEMORY_WINDOW_COUNT")
+        .ok()
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(20);
+    let mut surfaces = Vec::with_capacity(window_count);
+    for i in 0..window_count {
+        let window = f.client(id).create_window();
+        window.set_title(&format!("RiNi memory benchmark {i}"));
+        window.commit();
+        surfaces.push(window.surface.clone());
+    }
+
+    f.roundtrip(id);
+
+    for surface in &surfaces {
+        let window = f.client(id).window(surface);
+        window.attach_new_buffer();
+        window.set_size(900, 600);
+        window.ack_last_and_commit();
+    }
+
+    f.double_roundtrip(id);
+
+    println!(
+        "RiNi memory benchmark: pid={}, windows={window_count}",
+        std::process::id()
+    );
+    let keepalive = std::env::var("RINI_MEMORY_KEEPALIVE_SECONDS")
+        .ok()
+        .and_then(|value| value.parse().ok())
+        .unwrap_or(30);
+    std::thread::sleep(std::time::Duration::from_secs(keepalive));
+}
+
+#[test]
 fn simple_no_workspaces() {
     let mut f = Fixture::new();
 

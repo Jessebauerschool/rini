@@ -93,8 +93,8 @@ Requires:       xwayland-satellite >= 0.7
 
 # Portal implementations used by niri
 Recommends:     xdg-desktop-portal-gtk
-Recommends:     xdg-desktop-portal-gnome
-Recommends:     gnome-keyring
+Recommends:     xdg-desktop-portal-wlr
+Recommends:     oo7-portal
 
 # Suggested utilities, bound in the default config
 Recommends:     alacritty

@@ -1,7 +1,7 @@
 ### Overview
 
 When building niri, check `Cargo.toml` for a list of build features.
-For example, you can replace systemd integration with dinit integration using `cargo build --release --no-default-features --features dinit,dbus,xdp-gnome-screencast`.
+For example, you can replace systemd integration with dinit integration using `cargo build --release --no-default-features --features dinit,dbus`.
 The defaults however should work fine for most distributions.
 
 > [!WARNING]
@@ -39,11 +39,10 @@ Then, the following dependencies are optional, but strongly recommended.
 Set them as automatically-installed optional dependencies, if possible.
 
 - `xwayland-satellite`: required to run X11 applications (Steam, Discord, etc.).
-- `xdg-desktop-portal-gnome`: required for screencasting.
-- `xdg-desktop-portal-gtk`: configured as the fallback portal in `niri-portals.conf`.
+- `xdg-desktop-portal-wlr`: configured for screencasting and screenshot portals.
+- `xdg-desktop-portal-gtk`: configured for basic desktop portals and as the fallback in `niri-portals.conf`.
 (This is in general the standard fallback portal that you want installed.)
-- `oo7-portal` or `gnome-keyring`: configured as the Secret portal provider in `niri-portals.conf`.
-- `gnome-control-center`: required for the global shortcuts portal to work.
+- `oo7-portal`: configured as the Secret portal provider in `niri-portals.conf`.
 - Your distro's GPU driver package, such as `mesa-dri-drivers` and `mesa-libEGL`.
 Working hardware acceleration is required for running niri.
 - Some notification daemon like `mako`, generally required for apps to work correctly.

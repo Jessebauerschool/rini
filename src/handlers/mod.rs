@@ -78,7 +78,6 @@ use crate::protocols::foreign_toplevel::{
     self, ForeignToplevelHandler, ForeignToplevelManagerState,
 };
 use crate::protocols::gamma_control::{GammaControlHandler, GammaControlManagerState};
-use crate::protocols::mutter_x11_interop::MutterX11InteropHandler;
 use crate::protocols::output_management::{OutputManagementHandler, OutputManagementManagerState};
 use crate::protocols::screencopy::{Screencopy, ScreencopyHandler, ScreencopyManagerState};
 use crate::utils::{output_size, send_scale_transform};
@@ -835,4 +834,3 @@ impl OutputManagementHandler for State {
     }
 }
 
-impl MutterX11InteropHandler for State {}

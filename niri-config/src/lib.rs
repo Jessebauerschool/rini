@@ -44,7 +44,7 @@ pub mod utils;
 pub mod window_rule;
 pub mod workspace;
 
-pub use crate::animations::{Animation, Animations};
+pub use crate::animations::{Animation, AnimationProfile, Animations};
 pub use crate::appearance::*;
 pub use crate::binds::*;
 pub use crate::debug::Debug;
@@ -651,6 +651,13 @@ mod tests {
         Config::parse_mem(text)
             .map_err(miette::Report::new)
             .unwrap()
+    }
+
+    #[test]
+    fn minimal_animation_profile_disables_animations() {
+        let config = do_parse("animations {\n    profile \"minimal\"\n}");
+        assert_eq!(config.animations.profile, AnimationProfile::Minimal);
+        assert!(config.animations.off);
     }
 
     #[test]
@@ -2024,6 +2031,7 @@ mod tests {
                 disable_failed: false,
             },
             animations: Animations {
+                profile: Balanced,
                 off: false,
                 slowdown: 2.0,
                 workspace_switch: WorkspaceSwitchAnim(

@@ -9,8 +9,17 @@ use knuffel::Decode as _;
 use crate::utils::{expand_home_path, expect_only_children, parse_arg_node, MergeWith};
 use crate::{FloatOrInt, Includes};
 
+#[derive(knuffel::DecodeScalar, Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum AnimationProfile {
+    #[default]
+    Balanced,
+    Minimal,
+    Off,
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Animations {
+    pub profile: AnimationProfile,
     pub off: bool,
     pub slowdown: f64,
     pub workspace_switch: WorkspaceSwitchAnim,
@@ -29,6 +38,7 @@ pub struct Animations {
 impl Default for Animations {
     fn default() -> Self {
         Self {
+            profile: AnimationProfile::Balanced,
             off: false,
             slowdown: 1.,
             workspace_switch: Default::default(),
@@ -48,6 +58,8 @@ impl Default for Animations {
 
 #[derive(knuffel::Decode, Debug, Clone, PartialEq)]
 pub struct AnimationsPart {
+    #[knuffel(child, unwrap(argument))]
+    pub profile: Option<AnimationProfile>,
     #[knuffel(child)]
     pub off: bool,
     #[knuffel(child)]
@@ -80,6 +92,13 @@ pub struct AnimationsPart {
 
 impl MergeWith<AnimationsPart> for Animations {
     fn merge_with(&mut self, part: &AnimationsPart) {
+        if let Some(profile) = part.profile {
+            self.profile = profile;
+            match profile {
+                AnimationProfile::Balanced => self.off = false,
+                AnimationProfile::Minimal | AnimationProfile::Off => self.off = true,
+            }
+        }
         self.off |= part.off;
         if part.on {
             self.off = false;

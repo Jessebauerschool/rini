@@ -74,9 +74,6 @@ jobs:
       - name: Check (just dinit)
         run: cargo check --no-default-features --features dinit
 
-      - name: Check (just xdp-gnome-screencast)
-        run: cargo check --no-default-features --features xdp-gnome-screencast
-
       - name: Check
         run: cargo check
 
@@ -101,7 +98,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Build
-        run: cargo build --no-default-features --features dbus,xdp-gnome-screencast
+        run: cargo build --no-default-features --features dbus
 
   # Job that runs randomized tests for a longer period of time.
   # Also runs normal slow tests.
@@ -313,7 +310,7 @@ jobs:
 
             cargo build \
               --offline \
-              --no-default-features --features dbus,xdp-gnome-screencast
+              --no-default-features --features dbus
 
   nix:
     runs-on: ubuntu-24.04

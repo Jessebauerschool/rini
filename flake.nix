@@ -87,14 +87,12 @@
               wayland
             ]
             ++ lib.optional (withDbus || withScreencastSupport || withSystemd) dbus
-            ++ lib.optional withScreencastSupport pipewire
             # Also includes libudev
             ++ lib.optional withSystemd systemd;
 
           buildFeatures =
             lib.optional withDbus "dbus"
             ++ lib.optional withDinit "dinit"
-            ++ lib.optional withScreencastSupport "xdp-gnome-screencast"
             ++ lib.optional withSystemd "systemd";
           buildNoDefaultFeatures = true;
 

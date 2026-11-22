@@ -87,7 +87,7 @@ pub struct WindowSourceMappedId(pub MappedId);
 ///
 /// Returns `None` if the session doesn't have its client (it has already been
 /// dropped) or if the credentials cannot be determined (e.g., if peer is
-/// credentials_unknown like mutter_service_channel).
+/// credentials_unknown like a restricted compositor client).
 fn session_credentials(dh: &DisplayHandle, client: Option<Client>) -> Option<Credentials> {
     get_credentials_for_client(dh, &client?)
 }

@@ -19,8 +19,6 @@ pub mod niri;
 pub mod protocols;
 pub mod render_helpers;
 pub mod rubber_band;
-#[cfg(feature = "xdp-gnome-screencast")]
-pub mod screencasting;
 pub mod ui;
 pub mod utils;
 pub mod window;

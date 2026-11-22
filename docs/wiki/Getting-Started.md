@@ -11,7 +11,7 @@ systemctl --user add-wants niri.service dms
 
 Arch Linux:
 ```
-sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-gnome xdg-desktop-portal-gtk alacritty dux-shell matugen cava qt6-multimedia-ffmpeg
+sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-wlr xdg-desktop-portal-gtk alacritty dux-shell matugen cava qt6-multimedia-ffmpeg
 systemctl --user add-wants niri.service dms
 ```
 
@@ -198,7 +198,7 @@ Next, get latest stable Rust: https://rustup.rs/
 Then, build niri with `cargo build --release`.
 
 Check Cargo.toml for a list of build features.
-For example, you can replace systemd integration with dinit integration using `cargo build --release --no-default-features --features dinit,dbus,xdp-gnome-screencast`.
+For example, you can replace systemd integration with dinit integration using `cargo build --release --no-default-features --features dinit,dbus`.
 
 > [!WARNING]
 > Do NOT build with `--all-features`!

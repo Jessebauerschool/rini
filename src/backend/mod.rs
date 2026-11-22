@@ -170,16 +170,6 @@ impl Backend {
         }
     }
 
-    #[cfg(feature = "xdp-gnome-screencast")]
-    pub fn gbm_device(
-        &self,
-    ) -> Option<smithay::backend::allocator::gbm::GbmDevice<smithay::utils::DeviceFd>> {
-        match self {
-            Backend::Tty(tty) => tty.primary_gbm_device(),
-            Backend::Winit(winit) => winit.gbm_device(),
-            Backend::Headless(_) => None,
-        }
-    }
 
     pub fn set_monitors_active(&mut self, active: bool) {
         match self {

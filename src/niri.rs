@@ -130,12 +130,6 @@ use crate::cursor::{CursorManager, CursorTextureCache, RenderCursor, XCursor};
 use crate::dbus::freedesktop_locale1::Locale1ToNiri;
 #[cfg(feature = "dbus")]
 use crate::dbus::freedesktop_login1::Login1ToNiri;
-#[cfg(feature = "dbus")]
-use crate::dbus::gnome_shell::{GlobalShortcutsPortalBinds, ShellToNiri};
-#[cfg(feature = "dbus")]
-use crate::dbus::gnome_shell_introspect::{self, IntrospectToNiri, NiriToIntrospect};
-#[cfg(feature = "dbus")]
-use crate::dbus::gnome_shell_screenshot::{NiriToScreenshot, ScreenshotToNiri};
 use crate::frame_clock::FrameClock;
 use crate::handlers::image_copy_capture::{
     self as image_copy_capture_impl, CursorCaptureGeometry, ImageCopyCursorSession,
@@ -163,7 +157,6 @@ use crate::niri_render_elements;
 use crate::protocols::ext_workspace::{self, ExtWorkspaceManagerState};
 use crate::protocols::foreign_toplevel::{self, ForeignToplevelManagerState};
 use crate::protocols::gamma_control::GammaControlManagerState;
-use crate::protocols::mutter_x11_interop::MutterX11InteropManagerState;
 use crate::protocols::output_management::OutputManagementManagerState;
 use crate::protocols::screencopy::{Screencopy, ScreencopyManagerState};
 use crate::render_helpers::blur::BlurOptions;
@@ -178,8 +171,6 @@ use crate::render_helpers::{
     encompassing_geo, render_to_encompassing_texture, render_to_shm, render_to_texture,
     render_to_vec, shaders, CaptureBuffer, RenderCtx, RenderTarget,
 };
-#[cfg(feature = "xdp-gnome-screencast")]
-use crate::screencasting::Screencasting;
 use crate::ui::config_error_notification::ConfigErrorNotification;
 use crate::ui::exit_confirm_dialog::{ExitConfirmDialog, ExitConfirmDialogRenderElement};
 use crate::ui::hotkey_overlay::HotkeyOverlay;
@@ -356,7 +347,6 @@ pub struct Niri {
     pub security_context_state: SecurityContextState,
     pub gamma_control_manager_state: GammaControlManagerState,
     pub activation_state: XdgActivationState,
-    pub mutter_x11_interop_state: MutterX11InteropManagerState,
 
     // This will not work as is outside of tests, so it is gated with #[cfg(test)] for now. In
     // particular, shaders will need to learn about the single pixel buffer. Also, it must be
@@ -460,8 +450,6 @@ pub struct Niri {
     pub config_error_notification: ConfigErrorNotification,
     pub hotkey_overlay: HotkeyOverlay,
     pub exit_confirm_dialog: ExitConfirmDialog,
-    #[cfg(feature = "dbus")]
-    pub global_shortcuts_portal_binds: GlobalShortcutsPortalBinds,
 
     pub window_mru_ui: WindowMruUi,
     pub pending_mru_commit: Option<PendingMruCommit>,
@@ -480,16 +468,11 @@ pub struct Niri {
     pub a11y: A11y,
     #[cfg(feature = "dbus")]
     pub inhibit_power_key_fd: Option<zbus::zvariant::OwnedFd>,
-    #[cfg(feature = "dbus")]
-    pub gnome_shell: Option<crate::dbus::gnome_shell::Shell>,
 
     pub ipc_server: Option<IpcServer>,
     pub ipc_outputs_changed: bool,
 
     pub satellite: Option<Satellite>,
-
-    #[cfg(feature = "xdp-gnome-screencast")]
-    pub casting: Screencasting,
 
     #[cfg(test)]
     pub test_action_count: usize,
@@ -902,8 +885,6 @@ impl State {
         self.refresh_image_copy_capture();
         self.niri.refresh_image_copy_cursor_sessions();
 
-        #[cfg(feature = "xdp-gnome-screencast")]
-        self.niri.refresh_mapped_cast_outputs();
         // Should happen before refresh_window_rules(), but after anything that can start or stop
         // screencasts.
         self.niri.refresh_mapped_cast_window_rules();
@@ -2258,9 +2239,6 @@ impl State {
             ipc_output.logical = logical;
         }
 
-        #[cfg(feature = "dbus")]
-        self.niri.on_ipc_outputs_changed();
-
         let new_config = self.backend.ipc_outputs().lock().unwrap().clone();
         self.niri.output_management_state.notify_changes(new_config);
     }
@@ -2406,148 +2384,7 @@ impl State {
         });
     }
 
-    #[cfg(not(feature = "xdp-gnome-screencast"))]
     pub fn set_dynamic_cast_target(&mut self, _target: CastTarget) {}
-
-    #[cfg(feature = "dbus")]
-    pub fn on_screen_shot_msg(
-        &mut self,
-        to_screenshot: &async_channel::Sender<NiriToScreenshot>,
-        msg: ScreenshotToNiri,
-    ) {
-        match msg {
-            ScreenshotToNiri::TakeScreenshot { include_cursor } => {
-                self.handle_take_screenshot(to_screenshot, include_cursor);
-            }
-            ScreenshotToNiri::PickColor(tx) => {
-                self.handle_pick_color(tx);
-            }
-        }
-    }
-
-    #[cfg(feature = "dbus")]
-    fn handle_take_screenshot(
-        &mut self,
-        to_screenshot: &async_channel::Sender<NiriToScreenshot>,
-        include_cursor: bool,
-    ) {
-        let _span = tracy_client::span!("TakeScreenshot");
-
-        let rv = self.backend.with_primary_renderer(|renderer| {
-            let on_done = {
-                let to_screenshot = to_screenshot.clone();
-                move |path| {
-                    let msg = NiriToScreenshot::ScreenshotResult(Some(path));
-                    if let Err(err) = to_screenshot.send_blocking(msg) {
-                        warn!("error sending path to screenshot: {err:?}");
-                    }
-                }
-            };
-
-            let res = self
-                .niri
-                .screenshot_all_outputs(renderer, include_cursor, on_done);
-
-            if let Err(err) = res {
-                warn!("error taking a screenshot: {err:?}");
-
-                let msg = NiriToScreenshot::ScreenshotResult(None);
-                if let Err(err) = to_screenshot.send_blocking(msg) {
-                    warn!("error sending None to screenshot: {err:?}");
-                }
-            }
-        });
-
-        if rv.is_none() {
-            let msg = NiriToScreenshot::ScreenshotResult(None);
-            if let Err(err) = to_screenshot.send_blocking(msg) {
-                warn!("error sending None to screenshot: {err:?}");
-            }
-        }
-    }
-
-    #[cfg(feature = "dbus")]
-    pub fn on_gnome_shell_msg(&mut self, msg: ShellToNiri) {
-        match msg {
-            ShellToNiri::GrabAccelerators {
-                accelerators,
-                results: tx,
-            } => {
-                trace!("GrabAccelerators: requesting grab accelerators: {accelerators:?}");
-                let results = self
-                    .niri
-                    .global_shortcuts_portal_binds
-                    .grab_accelerators(&accelerators);
-
-                trace!("GrabAccelerators: returning actions: {results:?}");
-                if let Err(err) = tx.send_blocking(results) {
-                    warn!("error sending grab accelerators result to gnome shell: {err:?}");
-                }
-            }
-            ShellToNiri::UngrabAccelerators {
-                actions,
-                result: tx,
-            } => {
-                trace!("UngrabAccelerators: requesting ungrab accelerators: {actions:?}",);
-                let result = self
-                    .niri
-                    .global_shortcuts_portal_binds
-                    .ungrab_accelerators(&actions);
-
-                trace!("UngrabAccelerators: returning result: {result:?}");
-                if let Err(err) = tx.send_blocking(result) {
-                    warn!("error sending ungrab accelerators result to gnome shell: {err:?}");
-                }
-            }
-        }
-    }
-
-    #[cfg(feature = "dbus")]
-    pub fn on_introspect_msg(
-        &mut self,
-        to_introspect: &async_channel::Sender<NiriToIntrospect>,
-        msg: IntrospectToNiri,
-    ) {
-        use crate::utils::with_toplevel_role;
-
-        let IntrospectToNiri::GetWindows = msg;
-        let _span = tracy_client::span!("GetWindows");
-
-        let mut windows = HashMap::new();
-
-        #[cfg(feature = "xdp-gnome-screencast")]
-        windows.insert(
-            self.niri.casting.dynamic_cast_id_for_portal.get(),
-            gnome_shell_introspect::WindowProperties {
-                title: String::from("niri Dynamic Cast Target"),
-                app_id: String::from("rs.bxt.niri.desktop"),
-            },
-        );
-
-        self.niri.layout.with_windows(|mapped, _, _, _| {
-            let id = mapped.id().get();
-            let props = with_toplevel_role(mapped.toplevel(), |role| {
-                gnome_shell_introspect::WindowProperties {
-                    title: role.title.clone().unwrap_or_default(),
-                    app_id: role
-                        .app_id
-                        .as_ref()
-                        // We don't do proper .desktop file tracking (it's quite involved), and
-                        // Wayland windows can set any app id they want. However, this seems to
-                        // work well enough in practice.
-                        .map(|app_id| format!("{app_id}.desktop"))
-                        .unwrap_or_default(),
-                }
-            });
-
-            windows.insert(id, props);
-        });
-
-        let msg = NiriToIntrospect::Windows(windows);
-        if let Err(err) = to_introspect.send_blocking(msg) {
-            warn!("error sending windows to introspect: {err:?}");
-        }
-    }
 
     #[cfg(feature = "dbus")]
     pub fn on_login1_msg(&mut self, msg: Login1ToNiri) {
@@ -2762,9 +2599,6 @@ impl Niri {
             )
             .unwrap();
 
-        let mutter_x11_interop_state =
-            MutterX11InteropManagerState::new::<State, _>(&display_handle, move |_| true);
-
         #[cfg(test)]
         let single_pixel_buffer_state = SinglePixelBufferState::new::<State>(&display_handle);
 
@@ -2822,8 +2656,6 @@ impl Niri {
         let exit_confirm_dialog = ExitConfirmDialog::new(animation_clock.clone(), config.clone());
 
         #[cfg(feature = "dbus")]
-        let global_shortcuts = GlobalShortcutsPortalBinds::new();
-
         #[cfg(feature = "dbus")]
         let a11y = A11y::new(event_loop.clone());
 
@@ -2859,9 +2691,6 @@ impl Niri {
                 None
             }
         };
-
-        #[cfg(feature = "xdp-gnome-screencast")]
-        let screencasting = Screencasting::new(&event_loop);
 
         let display_source = Generic::new(display, Interest::READ, Mode::Level);
         event_loop
@@ -2974,7 +2803,6 @@ impl Niri {
             security_context_state,
             gamma_control_manager_state,
             activation_state,
-            mutter_x11_interop_state,
             #[cfg(test)]
             single_pixel_buffer_state,
 
@@ -3021,9 +2849,6 @@ impl Niri {
             config_error_notification,
             hotkey_overlay,
             exit_confirm_dialog,
-            #[cfg(feature = "dbus")]
-            global_shortcuts_portal_binds: global_shortcuts,
-
             window_mru_ui,
             pending_mru_commit: None,
 
@@ -3041,16 +2866,10 @@ impl Niri {
             a11y,
             #[cfg(feature = "dbus")]
             inhibit_power_key_fd: None,
-            #[cfg(feature = "dbus")]
-            gnome_shell: None,
-
             ipc_server,
             ipc_outputs_changed: false,
 
             satellite: None,
-
-            #[cfg(feature = "xdp-gnome-screencast")]
-            casting: screencasting,
 
             #[cfg(test)]
             test_action_count: 0,
@@ -5181,18 +5000,6 @@ impl Niri {
         // to err on the safe side.
         self.send_frame_callbacks(output);
         backend.with_primary_renderer(|renderer| {
-            #[cfg(feature = "xdp-gnome-screencast")]
-            {
-                // Render and send to PipeWire screencast streams.
-                self.render_for_screen_cast(renderer, output, target_presentation_time);
-
-                // FIXME: when a window is hidden, it should probably still receive frame callbacks
-                // and get rendered for screen cast. This is currently
-                // unimplemented, but happens to work by chance, since output
-                // redrawing is more eager than it should be.
-                self.render_windows_for_screen_cast(renderer, output, target_presentation_time);
-            }
-
             self.render_for_screencopy_with_damage(renderer, output);
             self.render_for_image_copy_capture(renderer, output, target_presentation_time);
             self.render_windows_for_image_copy_capture(renderer, output, target_presentation_time);
@@ -6433,21 +6240,11 @@ impl Niri {
                 }
             }
 
-            #[cfg(feature = "xdp-gnome-screencast")]
-            if !value {
-                let id = CastTarget::Window { id: id.get() };
-                // Find regardless of cast.is_active.
-                value = self.casting.casts.iter().any(|cast| cast.target == id);
-            }
-
             mapped.set_is_window_cast_target(value);
         });
     }
 
-    #[cfg(not(feature = "xdp-gnome-screencast"))]
     pub fn stop_casts_for_target(&mut self, _target: CastTarget) {}
-
-    #[cfg(not(feature = "xdp-gnome-screencast"))]
     pub fn stop_cast(&mut self, _session_id: crate::utils::CastSessionId) {}
 
     pub fn debug_toggle_damage(&mut self) {
@@ -7225,44 +7022,6 @@ impl Niri {
         }
 
         root.clone()
-    }
-
-    #[cfg(feature = "dbus")]
-    pub fn on_ipc_outputs_changed(&self) {
-        let _span = tracy_client::span!("Niri::on_ipc_outputs_changed");
-
-        let Some(dbus) = &self.dbus else { return };
-        let Some(conn_display_config) = dbus.conn_display_config.clone() else {
-            return;
-        };
-
-        let res = thread::Builder::new()
-            .name("DisplayConfig MonitorsChanged Emitter".to_owned())
-            .spawn(move || {
-                use crate::dbus::mutter_display_config::DisplayConfig;
-                let _span = tracy_client::span!("MonitorsChanged");
-                let iface = match conn_display_config
-                    .object_server()
-                    .interface::<_, DisplayConfig>("/org/gnome/Mutter/DisplayConfig")
-                {
-                    Ok(iface) => iface,
-                    Err(err) => {
-                        warn!("error getting DisplayConfig interface: {err:?}");
-                        return;
-                    }
-                };
-
-                async_io::block_on(async move {
-                    if let Err(err) = DisplayConfig::monitors_changed(iface.signal_emitter()).await
-                    {
-                        warn!("error emitting MonitorsChanged: {err:?}");
-                    }
-                });
-            });
-
-        if let Err(err) = res {
-            warn!("error spawning a thread to send MonitorsChanged: {err:?}");
-        }
     }
 
     pub fn handle_focus_follows_mouse(

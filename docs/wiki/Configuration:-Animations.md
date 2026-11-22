@@ -7,7 +7,7 @@ Here's a quick glance at the available animations with their default values.
 
 ```kdl
 animations {
-    // RiNi memory and responsiveness presets.
+    // RiNi animation presets; these control animation behavior, not RAM usage.
     // "balanced" is the default; "minimal" or "off" disables all animations.
     profile "balanced"
 

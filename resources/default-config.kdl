@@ -300,9 +300,9 @@ screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 // The wiki explains how to configure individual animations:
 // https://niri-wm.github.io/niri/Configuration:-Animations
 animations {
-    // RiNi presets:
+    // RiNi animation presets (these do not change memory usage):
     // - "balanced" keeps the normal polished animations.
-    // - "minimal" disables all animations for the lowest compositor overhead.
+    // - "minimal" disables all animations to minimize animation work.
     // - "off" is equivalent to "minimal".
     profile "balanced"
 

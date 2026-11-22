@@ -18,8 +18,8 @@ You can find documentation for various sections of the config on these wiki page
 
 ### Loading
 
-Niri will load configuration from `$XDG_CONFIG_HOME/niri/config.kdl` or `~/.config/niri/config.kdl`, falling back to `/etc/niri/config.kdl`.
-If both of these files are missing, niri will create `$XDG_CONFIG_HOME/niri/config.kdl` with the contents of [the default configuration file](https://github.com/niri-wm/niri/blob/main/resources/default-config.kdl), which are embedded into the niri binary at build time.
+RiNi will load configuration from `$XDG_CONFIG_HOME/rini/config.kdl` or `~/.config/rini/config.kdl`, falling back to `/etc/rini/config.kdl`.
+If both of these files are missing, RiNi will create `$XDG_CONFIG_HOME/rini/config.kdl` with the contents of [the default configuration file](https://github.com/Jessebauerschool/rini/blob/main/resources/default-config.kdl), which are embedded into the RiNi binary at build time.
 Please use the default configuration file as the starting point for your custom configuration.
 
 The configuration is live-reloaded.
@@ -30,10 +30,10 @@ You can run `niri validate` to parse the config and see any errors.
 
 To use a different config file path, pass it in the `--config` or `-c` argument to `niri`.
 
-You can also set `$NIRI_CONFIG` to the path of the config file.
+You can also set `$RINI_CONFIG` to the path of the config file. `$NIRI_CONFIG` remains accepted for compatibility.
 `--config` always takes precedence.
-If `--config` or `$NIRI_CONFIG` doesn't point to a real file, the config will not be loaded.
-If `$NIRI_CONFIG` is set to an empty string, it is ignored and the default config location is used instead.
+If `--config` or `$RINI_CONFIG` doesn't point to a real file, the config will not be loaded.
+If `$RINI_CONFIG` is set to an empty string, it is ignored and the default config location is used instead.
 
 ### Syntax
 

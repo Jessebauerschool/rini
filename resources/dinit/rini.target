@@ -1,0 +1,6 @@
+type           = internal
+restart        = false
+depends-on:    rini
+waits-for.d:   $XDG_CONFIG_HOME/dinit.d/rini.d/
+waits-for.d:   $HOME/.config/dinit.d/rini.d/
+waits-for.d:   /etc/dinit.d/user/rini.d/

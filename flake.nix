@@ -1,6 +1,6 @@
 # This flake file is community maintained
 {
-  description = "Niri: A scrollable-tiling Wayland compositor.";
+  description = "RiNi: A minimal, scrollable-tiling Wayland compositor.";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
 
@@ -11,7 +11,7 @@
     }:
     let
       revision = self.shortRev or self.dirtyShortRev or "unknown";
-      niri-package =
+      rini-package =
         {
           lib,
           cairo,
@@ -36,7 +36,7 @@
         }:
 
         rustPlatform.buildRustPackage {
-          pname = "niri";
+          pname = "rini";
           version = revision;
 
           src = lib.fileset.toSource {
@@ -54,9 +54,9 @@
           };
 
           postPatch = ''
-            patchShebangs resources/niri-session
-            substituteInPlace resources/niri.service \
-              --replace-fail 'ExecStart=niri' "ExecStart=$out/bin/niri"
+            patchShebangs resources/rini-session
+            substituteInPlace resources/rini.service \
+              --replace-fail 'ExecStart=rini' "ExecStart=$out/bin/rini"
           '';
 
           cargoLock = {
@@ -113,18 +113,19 @@
 
           postInstall =
             ''
-              installShellCompletion --cmd niri \
-                --bash <($out/bin/niri completions bash) \
-                --fish <($out/bin/niri completions fish) \
-                --nushell <($out/bin/niri completions nushell) \
-                --zsh <($out/bin/niri completions zsh)
+              installShellCompletion --cmd rini \
+                --bash <($out/bin/rini completions bash) \
+                --fish <($out/bin/rini completions fish) \
+                --nushell <($out/bin/rini completions nushell) \
+                --zsh <($out/bin/rini completions zsh)
 
-              install -Dm644 resources/niri.desktop -t $out/share/wayland-sessions
-              install -Dm644 resources/niri-portals.conf -t $out/share/xdg-desktop-portal
+              install -Dm644 resources/rini.desktop -t $out/share/wayland-sessions
+              install -Dm644 resources/rini-portals.conf -t $out/share/xdg-desktop-portal
+              install -Dm644 resources/rini.png -t $out/share/pixmaps
             ''
             + lib.optionalString withSystemd ''
-              install -Dm755 resources/niri-session $out/bin/niri-session
-              install -Dm644 resources/niri{.service,-shutdown.target} -t $out/lib/systemd/user
+              install -Dm755 resources/rini-session $out/bin/rini-session
+              install -Dm644 resources/rini{.service,-shutdown.target} -t $out/lib/systemd/user
             '';
 
           env = {
@@ -142,14 +143,14 @@
           };
 
           passthru = {
-            providedSessions = [ "niri" ];
+            providedSessions = [ "rini" ];
           };
 
           meta = {
-            description = "Scrollable-tiling Wayland compositor";
-            homepage = "https://github.com/niri-wm/niri";
+            description = "Minimal, scrollable-tiling Wayland compositor";
+            homepage = "https://github.com/Jessebauerschool/rini";
             license = lib.licenses.gpl3Only;
-            mainProgram = "niri";
+            mainProgram = "rini";
             platforms = lib.platforms.linux;
           };
         };
@@ -164,7 +165,7 @@
     {
       checks = forAllSystems (system: {
         # We use the debug build here to save a bit of time
-        inherit (self.packages.${system}) niri-debug;
+        inherit (self.packages.${system}) rini-debug;
       });
 
       devShells = forAllSystems (
@@ -172,7 +173,7 @@
         let
           pkgs = nixpkgsFor.${system};
           rustfmt' = pkgs.rustfmt.override { asNightly = true; };
-          inherit (self.packages.${system}) niri;
+          inherit (self.packages.${system}) rini;
         in
         {
           default = pkgs.mkShell {
@@ -202,7 +203,7 @@
               # in the package expression
               #
               # This should only be set with `RUSTFLAGS="$RUSTFLAGS -C your-flags"`
-              RUSTFLAGS = niri.RUSTFLAGS;
+              RUSTFLAGS = rini.RUSTFLAGS;
             };
           };
         }
@@ -213,17 +214,17 @@
       packages = forAllSystems (
         system:
         let
-          niri = nixpkgsFor.${system}.callPackage niri-package { };
+          rini = nixpkgsFor.${system}.callPackage rini-package { };
         in
         {
-          inherit niri;
+          inherit rini;
 
           # NOTE: This is for development purposes only
           #
           # It is primarily to help with quickly iterating on
           # changes made to the above expression - though it is
           # also not stripped in order to better debug niri itself
-          niri-debug = niri.overrideAttrs (
+          rini-debug = rini.overrideAttrs (
             newAttrs: oldAttrs: {
               pname = oldAttrs.pname + "-debug";
 
@@ -234,12 +235,12 @@
             }
           );
 
-          default = niri;
+          default = rini;
         }
       );
 
       overlays.default = final: _: {
-        niri = final.callPackage niri-package { };
+        rini = final.callPackage rini-package { };
       };
     };
 }

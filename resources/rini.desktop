@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=RiNi
+Comment=A minimal, scrollable-tiling Wayland compositor
+Exec=rini-session
+Icon=rini
+Type=Application
+DesktopNames=rini

@@ -16,7 +16,7 @@ use crate::cli::Msg;
 use crate::utils::version;
 
 pub fn handle_msg(mut msg: Msg, json: bool, print_request: bool) -> anyhow::Result<()> {
-    // For actions taking paths, prepend the niri CLI's working directory.
+    // For actions taking paths, prepend the RiNi CLI's working directory.
     if let Msg::Action {
         action:
             Action::Screenshot { path, .. }
@@ -67,7 +67,7 @@ pub fn handle_msg(mut msg: Msg, json: bool, print_request: bool) -> anyhow::Resu
     }
 
     let is_event_stream = matches!(request, Request::EventStream);
-    let mut socket = Socket::connect().context("error connecting to the niri socket")?;
+    let mut socket = Socket::connect()    .context("error connecting to the RiNi socket")?;
 
     let result = socket.send(request);
 

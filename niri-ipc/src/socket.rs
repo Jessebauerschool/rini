@@ -1,4 +1,4 @@
-//! Helper for blocking communication over the niri socket.
+//! Helper for blocking communication over the RiNi socket.
 
 use std::env;
 use std::io::{self, BufRead, BufReader, Write};
@@ -8,8 +8,8 @@ use std::path::Path;
 
 use crate::{Event, Reply, Request};
 
-/// Name of the environment variable containing the niri IPC socket path.
-pub const SOCKET_PATH_ENV: &str = "NIRI_SOCKET";
+/// Name of the environment variable containing the RiNi IPC socket path.
+pub const SOCKET_PATH_ENV: &str = "RINI_SOCKET";
 
 /// Helper for blocking communication over the niri socket.
 ///
@@ -20,17 +20,19 @@ pub struct Socket {
 }
 
 impl Socket {
-    /// Connects to the default niri IPC socket.
+    /// Connects to the default RiNi IPC socket.
     ///
     /// This is equivalent to calling [`Self::connect_to`] with the path taken from the
     /// [`SOCKET_PATH_ENV`] environment variable.
     pub fn connect() -> io::Result<Self> {
-        let socket_path = env::var_os(SOCKET_PATH_ENV).ok_or_else(|| {
-            io::Error::new(
-                io::ErrorKind::NotFound,
-                format!("{SOCKET_PATH_ENV} is not set, are you running this within niri?"),
-            )
-        })?;
+        let socket_path = env::var_os(SOCKET_PATH_ENV)
+            .or_else(|| env::var_os("NIRI_SOCKET"))
+            .ok_or_else(|| {
+                io::Error::new(
+                    io::ErrorKind::NotFound,
+                    format!("{SOCKET_PATH_ENV} is not set, are you running this within RiNi?"),
+                )
+            })?;
         Self::connect_to(socket_path)
     }
 

@@ -1,9 +1,9 @@
-<h1 align="center"><img alt="niri" src="https://github.com/user-attachments/assets/07d05cd0-d5dc-4a28-9a35-51bae8f119a0"></h1>
-<p align="center">A scrollable-tiling Wayland compositor.</p>
+<h1 align="center"><img alt="RiNi" src="./RiNi.png" width="240"></h1>
+<p align="center">A minimal, scrollable-tiling Wayland compositor.</p>
 <p align="center">
     <a href="https://matrix.to/#/#niri:matrix.org"><img alt="Matrix" src="https://img.shields.io/badge/matrix-%23niri-blue?logo=matrix"></a>
-    <a href="https://github.com/niri-wm/niri/blob/main/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/niri-wm/niri"></a>
-    <a href="https://github.com/niri-wm/niri/releases"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/niri-wm/niri?logo=github"></a>
+    <a href="https://github.com/Jessebauerschool/rini/blob/main/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/Jessebauerschool/rini"></a>
+    <a href="https://github.com/Jessebauerschool/rini/releases"><img alt="GitHub Release" src="https://img.shields.io/github/v/release/Jessebauerschool/rini?logo=github"></a>
 </p>
 
 <p align="center">

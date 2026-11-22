@@ -6,13 +6,13 @@ Fedora:
 ```
 sudo dnf copr enable duxlabs/dms
 sudo dnf install niri dms
-systemctl --user add-wants niri.service dms
+systemctl --user add-wants rini.service dms
 ```
 
 Arch Linux:
 ```
 sudo pacman -Syu niri xwayland-satellite xdg-desktop-portal-wlr xdg-desktop-portal-gtk alacritty dux-shell matugen cava qt6-multimedia-ffmpeg
-systemctl --user add-wants niri.service dms
+systemctl --user add-wants rini.service dms
 ```
 
 Ubuntu 25.10 and above:
@@ -24,7 +24,7 @@ sudo apt install niri dms
 ```
 
 After running these commands, log out, choose Niri in your display manager, and log back in.
-Or, if not using a display manager, run `niri-session` on a TTY.
+Or, if not using a display manager, run `rini-session` on a TTY.
 
 The default niri config will run Waybar, so you might get two bars on screen.
 To fix this, stop Waybar with `pkill waybar` command, then open `~/.config/niri/config.kdl` and delete the `spawn-at-startup "waybar"` line.
@@ -43,9 +43,9 @@ After installing, start niri from your display manager like GDM.
 Press <kbd>Super</kbd><kbd>T</kbd> to run a terminal ([Alacritty]) and <kbd>Super</kbd><kbd>D</kbd> to run an application launcher ([fuzzel]).
 To exit niri, press <kbd>Super</kbd><kbd>Shift</kbd><kbd>E</kbd>.
 
-If you're not using a display manager, you should run `niri-session` (systemd/dinit) or `niri --session` (others) from a TTY.
+If you're not using a display manager, you should run `rini-session` (systemd/dinit) or `rini --session` (others) from a TTY.
 The `--session` flag will make niri import its environment variables globally into the system manager and D-Bus, and start its D-Bus services.
-The `niri-session` script will additionally start niri as a systemd/dinit service, which starts up a graphical session target required by some services like portals.
+The `rini-session` script will additionally start RiNi as a systemd/dinit service, which starts up a graphical session target required by some services like portals.
 
 > [!WARNING]
 > Running niri directly from a TTY means that exiting or crashing niri will put the user straight into an unlocked shell prompt.
@@ -222,19 +222,20 @@ If installing directly without a package, the recommended file destinations are 
 In this case, put the files in the directories indicated in the table below.
 These may vary depending on your distribution.
 
-Don't forget to make sure that the path to `niri` in niri.service is correct.
-This defaults to `/usr/bin/niri`.
+Don't forget to make sure that the path to `rini` in rini.service is correct.
+This defaults to `/usr/bin/rini`.
 
 | File | Destination |
 | ---- | ----------- |
-| `target/release/niri` | `/usr/local/bin/` |
-| `resources/niri-session` | `/usr/local/bin/` |
-| `resources/niri.desktop`  | `/usr/local/share/wayland-sessions/` |
-| `resources/niri-portals.conf` | `/usr/local/share/xdg-desktop-portal/` |
-| `resources/niri.service` (systemd) | `/etc/systemd/user/` |
-| `resources/niri-shutdown.target` (systemd) | `/etc/systemd/user/` |
-| `resources/dinit/niri` (dinit) | `/etc/dinit.d/user/` |
-| `resources/dinit/niri.target` (dinit) | `/etc/dinit.d/user/` |
+| `target/release/rini` | `/usr/local/bin/` |
+| `resources/rini-session` | `/usr/local/bin/` |
+| `resources/rini.desktop`  | `/usr/local/share/wayland-sessions/` |
+| `resources/rini-portals.conf` | `/usr/local/share/xdg-desktop-portal/` |
+| `resources/rini.png` | `/usr/local/share/pixmaps/` |
+| `resources/rini.service` (systemd) | `/etc/systemd/user/` |
+| `resources/rini-shutdown.target` (systemd) | `/etc/systemd/user/` |
+| `resources/dinit/rini` (dinit) | `/etc/dinit.d/user/` |
+| `resources/dinit/rini.target` (dinit) | `/etc/dinit.d/user/` |
 
 [Alacritty]: https://github.com/alacritty/alacritty
 [fuzzel]: https://codeberg.org/dnkl/fuzzel

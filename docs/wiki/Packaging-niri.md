@@ -12,19 +12,20 @@ The defaults however should work fine for most distributions.
 
 The `niri-visual-tests` sub-crate/binary is development-only and should not be packaged.
 
-The recommended way to package niri is so that it runs as a standalone desktop session.
+The recommended way to package RiNi is so that it runs as a standalone desktop session.
 To do that, put files into the correct directories according to this table.
 
 | File | Destination |
 | ---- | ----------- |
-| `target/release/niri` | `/usr/bin/` |
-| `resources/niri-session` | `/usr/bin/` |
-| `resources/niri.desktop` | `/usr/share/wayland-sessions/` |
-| `resources/niri-portals.conf` | `/usr/share/xdg-desktop-portal/` |
-| `resources/niri.service` (systemd) | `/usr/lib/systemd/user/` |
-| `resources/niri-shutdown.target` (systemd) | `/usr/lib/systemd/user/` |
-| `resources/dinit/niri` (dinit) | `/usr/lib/dinit.d/user/` |
-| `resources/dinit/niri.target` (dinit) | `/usr/lib/dinit.d/user/` |
+| `target/release/rini` | `/usr/bin/` |
+| `resources/rini-session` | `/usr/bin/` |
+| `resources/rini.desktop` | `/usr/share/wayland-sessions/` |
+| `resources/rini-portals.conf` | `/usr/share/xdg-desktop-portal/` |
+| `resources/rini.png` | `/usr/share/pixmaps/` |
+| `resources/rini.service` (systemd) | `/usr/lib/systemd/user/` |
+| `resources/rini-shutdown.target` (systemd) | `/usr/lib/systemd/user/` |
+| `resources/dinit/rini` (dinit) | `/usr/lib/dinit.d/user/` |
+| `resources/dinit/rini.target` (dinit) | `/usr/lib/dinit.d/user/` |
 
 Doing this will make niri appear in GDM and other display managers.
 

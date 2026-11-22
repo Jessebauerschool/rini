@@ -30,17 +30,17 @@ You can find the full list of events along with documentation [here](https://nir
 
 ### Programmatic Access
 
-`niri msg --json` is a thin wrapper over writing and reading to a socket.
+`rini msg --json` is a thin wrapper over writing and reading to a socket.
 When implementing more complex scripts and modules, you're encouraged to access the socket directly.
 
-Connect to the UNIX domain socket located at `$NIRI_SOCKET` in the filesystem.
+Connect to the UNIX domain socket located at `$RINI_SOCKET` in the filesystem. `$NIRI_SOCKET` is also accepted for compatibility.
 Write your request encoded in JSON on a single line, followed by a newline character, or by flushing and shutting down the write end of the connection.
 Read the reply as JSON, also on a single line.
 
 You can use `socat` to test communicating with niri directly:
 
 ```sh
-$ socat STDIO "$NIRI_SOCKET"
+$ socat STDIO "$RINI_SOCKET"
 "FocusedWindow"
 {"Ok":{"FocusedWindow":{"id":12,"title":"t socat STDIO /run/u ~","app_id":"Alacritty","workspace_id":6,"is_focused":true}}}
 ```

@@ -23,7 +23,7 @@
 //! it is a fairly simple helper, so if you need async, or if you're using a different language,
 //! you are encouraged to communicate with the socket manually.
 //!
-//! 1. Read the socket filesystem path from [`socket::SOCKET_PATH_ENV`] (`$NIRI_SOCKET`).
+//! 1. Read the socket filesystem path from [`socket::SOCKET_PATH_ENV`] (`$RINI_SOCKET`; `$NIRI_SOCKET` is accepted for compatibility).
 //! 2. Connect to the socket and write a JSON-formatted [`Request`] on a single line. You can follow
 //!    up with a line break and a flush, or just flush and shutdown the write end of the socket.
 //! 3. Niri will respond with a single line JSON-formatted [`Reply`].

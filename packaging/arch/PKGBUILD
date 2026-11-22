@@ -1,6 +1,6 @@
 pkgname=rini
 pkgver=26.4.0
-pkgrel=1
+pkgrel=2
 pkgdesc='A minimal, scrollable-tiling Wayland compositor'
 arch=('x86_64')
 url='https://github.com/Jessebauerschool/rini'
@@ -12,6 +12,13 @@ sha256sums=('SKIP')
 
 build() {
     cd rini
+
+    # Avoid an LLVM codegen crash seen with Arch's linker-plugin LTO flags.
+    # Keep the rest of makepkg's RUSTFLAGS (including target CPU and hardening).
+    RUSTFLAGS="${RUSTFLAGS//-C linker-plugin-lto/}"
+    export RUSTFLAGS
+    export CARGO_PROFILE_RELEASE_LTO=false
+
     cargo build --release --bin rini
 }
 
